@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <title>Chat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; max-width: 600px; margin: 20px auto; padding: 0 10px; }
+    #messages { border: 1px solid #ccc; height: 70vh; overflow-y: scroll; padding: 10px; }
+    #input { display: flex; margin-top: 10px; gap: 5px; }
+    #msg { flex: 1; }
+    input, button { padding: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Simple Chat</h2>
+  <div id="messages"></div>
+  <div id="input">
+    <input id="user" placeholder="Name" style="width:80px">
+    <input id="msg" placeholder="Type message..." autocomplete="off">
+    <button onclick="send()">Send</button>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+    const messages = document.getElementById('messages');
+    
+    socket.on('message', data => {
+      messages.innerHTML += `<div><b>${data.user}:</b> ${data.msg}</div>`;
+      messages.scrollTop = messages.scrollHeight;
+    });
+    
+    function send() {
+      const user = document.getElementById('user').value || 'Anon';
+      const msg = document.getElementById('msg').value;
+      if (msg) {
+        socket.emit('message', {user, msg});
+        document.getElementById('msg').value = '';
+      }
+    }
+    
+    document.getElementById('msg').addEventListener('keypress', e => {
+      if (e.key === 'Enter') send();
+    });
+  </script>
+</body>
+</html>
